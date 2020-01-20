@@ -7,9 +7,14 @@ const urlDatabase = {
   '9sm5xk': 'http://www.google.com'
 };
 
-
-app.get('/', (require, response) => {
+// endpoints
+app.get('/', (request, response) => {
   response.send('Hello!');
+});
+
+
+app.get('/urls.json', (request, response) => {
+  response.json(urlDatabase);
 });
 
 

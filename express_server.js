@@ -38,20 +38,15 @@ app.get("/urls/new", (request, response) => {
 app.get('/urls/:shortURL', (request, response) => {
   const shortURL = request.params.shortURL;
   const longURL = urlDatabase[shortURL];
-
   let templateVars = { shortURL: shortURL, longURL: longURL };
-  
-  //console.log("longURL:", request.params);
   response.render('urls_show', templateVars);
 });
 
-
-// post to app
-app.post("/urls", (request, response) => {
-  console.log("OUTPUT: ", request.body);  // Log the POST request body to the console
-  response.send("Ok");         // Respond with 'Ok' (we will replace this)
+app.get("/u/:shortURL", (request, response) => {
+  const shortURL = request.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+  response.redirect(longURL);
 });
-
 
 
 
@@ -63,7 +58,16 @@ app.get('/urls.json', (request, response) => {
 app.get('/hello', (request, response) => {
   let templateVars = { greeting: 'Hello World!' };
   response.render('hello_world', templateVars);
- // response.send('<html><body>Hello <b>World</b></body></html>\n');
+});
+
+
+// post to app
+app.post("/urls", (request, response) => {
+  const longURL = request.body.longURL;
+  const rndStr = generateRandomString()
+  urlDatabase[rndStr] = longURL;
+  response.redirect(`/urls/${rndStr}`);
+
 });
 
 

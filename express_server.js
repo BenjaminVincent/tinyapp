@@ -1,6 +1,10 @@
 const express = require('express');
+const bodyParser = require("body-parser");
 const app = express();
 const PORT = 8080;
+
+
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs');
 
@@ -19,6 +23,10 @@ app.get('/urls', (request, response) => {
   response.render('urls_index', templateVars);
 });
 
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 
 app.get('/urls/:shortURL', (request, response) => {
   const shortURL = request.params.shortURL;
@@ -29,6 +37,7 @@ app.get('/urls/:shortURL', (request, response) => {
   //console.log("longURL:", request.params);
   response.render('urls_show', templateVars);
 });
+
 
 
 

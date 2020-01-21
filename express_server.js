@@ -10,6 +10,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 
 
+
+// fix this to allow for capital letters
 const generateRandomString = () => {
   return (Math.random().toString(36)+'00000000000000000').slice(2, 8);
 };

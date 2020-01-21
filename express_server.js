@@ -62,6 +62,14 @@ app.get('/hello', (request, response) => {
   response.render('hello_world', templateVars);
 });
 
+app.post("/urls/:shortURL/delete", (request, response) => {
+  //delete Employee.firstname;
+  const shortURL = request.params.shortURL;
+  delete urlDatabase[shortURL];
+  //console.log(urlDatabase);
+  response.redirect(`/urls`);
+});
+
 
 // post to app
 app.post("/urls", (request, response) => {

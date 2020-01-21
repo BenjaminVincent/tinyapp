@@ -19,6 +19,20 @@ app.get('/urls', (request, response) => {
   response.render('urls_index', templateVars);
 });
 
+
+app.get('/urls/:shortURL', (request, response) => {
+  const shortURL = request.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+
+  let templateVars = { shortURL: shortURL, longURL: longURL };
+  
+  //console.log("longURL:", request.params);
+  response.render('urls_show', templateVars);
+});
+
+
+
+
 app.get('/urls.json', (request, response) => {
   response.json(urlDatabase);
 });

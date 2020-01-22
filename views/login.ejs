@@ -7,21 +7,21 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
-    <title>Create Account - TinyApp Example</title>
+    <title>Login - TinyApp Example</title>
   </head>
 
   <body>
 
     <%- include ('partials/_header') %>
-    <h3>Hello world</h3>
+
     <main style="margin: 1em;">
-      <h3>Create Account</h3>
+      <h3>Login</h3>
       <form action="/register" method="POST">
         <div class="form-group mb-2">
           <label for="longURL">Email address</label>
           <input class="form-control" type="email" name="email" placeholder="Enter email" style="width: 300px">
           <label for="longURL" style="width: 300px; margin-top: 1em">Password</label>
-          <input class="form-control" type="password" name="password" placeholder="Password" style="width: 300px; margin-bottom: 1em">
+          <input class="form-control" type="password" placeholder="Password" style="width: 300px; margin-bottom: 1em">
           <button type="submit" class="btn btn-primary">register</button>
         </div>
       </form>

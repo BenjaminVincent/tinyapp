@@ -97,6 +97,7 @@ app.get('/register', (request, response) => {
 
 
 
+
 app.post('/urls/:shortURL/delete', (request, response) => {
   const shortURL = request.params.shortURL;
   delete urlDatabase[shortURL];
@@ -123,7 +124,6 @@ app.post("/urls", (request, response) => {
 
 app.post("/login", (request, response) => {
   const username = request.body.username;
-  console.log(username);
   response.cookie('username', username);
   response.redirect('/urls');
   
@@ -132,6 +132,11 @@ app.post("/login", (request, response) => {
 app.post("/logout", (request, response) => {
   response.clearCookie('username');
   response.redirect('/urls');
+});
+
+app.post('/register', (request, response) => {
+  const email = request.body.email;
+  const password = request.body.password;
 });
 
 

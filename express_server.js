@@ -24,6 +24,20 @@ const urlDatabase = {
   '9sm5xk': 'http://www.google.com'
 };
 
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 // endpoints
 app.get('/', (request, response) => {
   response.send('Hello!');
@@ -71,6 +85,11 @@ app.get('/urls.json', (request, response) => {
 app.get('/hello', (request, response) => {
   let templateVars = { greeting: 'Hello World!' };
   response.render('hello_world', templateVars);
+});
+
+app.get('/register', (request, response) => {
+  let templateVars = { username: request.cookies["username"] };
+  response.render('register', templateVars);
 });
 
 

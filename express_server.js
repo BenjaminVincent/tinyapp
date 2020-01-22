@@ -38,7 +38,10 @@ app.get('/urls', (request, response) => {
 });
 
 app.get("/urls/new", (request, response) => {
-  response.render("urls_new");
+  let templateVars = { 
+    username: request.cookies["username"], 
+  };
+  response.render("urls_new", templateVars);
 });
 
 
@@ -46,7 +49,10 @@ app.get('/urls/:shortURL', (request, response) => {
   const shortURL = request.params.shortURL;
   const longURL = urlDatabase[shortURL];
   
-  let templateVars = { shortURL: shortURL, longURL: longURL };
+  let templateVars = { 
+    username: request.cookies["username"],
+    shortURL: shortURL, 
+    longURL: longURL };
   response.render('urls_show', templateVars);
 });
 
@@ -67,6 +73,11 @@ app.get('/hello', (request, response) => {
   response.render('hello_world', templateVars);
 });
 
+
+
+
+
+
 app.post('/urls/:shortURL/delete', (request, response) => {
   const shortURL = request.params.shortURL;
   delete urlDatabase[shortURL];
@@ -76,8 +87,7 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 app.post('/urls/:id', (request, response) => {
   const shortURL = request.params.id;
   const longURL = request.body.style;
- 
-  //new long URL
+
   urlDatabase[shortURL] = longURL;
   response.redirect(shortURL);
 });

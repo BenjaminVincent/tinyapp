@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080;
 
@@ -8,6 +9,7 @@ const PORT = 8080;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 
 
@@ -28,7 +30,10 @@ app.get('/', (request, response) => {
 });
 
 app.get('/urls', (request, response) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { 
+    username: request.cookies["username"],
+    urls: urlDatabase 
+  };
   response.render('urls_index', templateVars);
 });
 
@@ -50,7 +55,6 @@ app.get("/u/:shortURL", (request, response) => {
   const longURL = urlDatabase[shortURL];
   response.redirect(longURL);
 });
-
 
 
 
@@ -86,6 +90,19 @@ app.post("/urls", (request, response) => {
   urlDatabase[rndStr] = longURL;
   response.redirect(`/urls/${rndStr}`);
 
+});
+
+app.post("/login", (request, response) => {
+  const username = request.body.username;
+  console.log(username);
+  response.cookie('username', username);
+  response.redirect('/urls');
+  
+});
+
+app.post("/logout", (request, response) => {
+  response.clearCookie('username');
+  response.redirect('/urls');
 });
 
 

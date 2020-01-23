@@ -134,13 +134,8 @@ app.get('/login', (request, response) => {
 
 app.post('/urls/:shortURL/delete', (request, response) => {
   const shortURL = request.params.shortURL;
-  console.log("ShortURL:", shortURL);
   const userID = request.cookies.user;
   const userURLS = urlsForUser(userID, urlDatabase);
-  // console.log("request.cookies.user:", request.cookies.user);
-  console.log(userURLS);
-  console.log(userID);
-  console.log("userShort:", userURLS[shortURL]);
   if (userID === userURLS[shortURL].userID) {
     delete urlDatabase[shortURL];
   } else {
@@ -151,10 +146,15 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 
 app.post('/urls/:id', (request, response) => {
   const shortURL = request.params.id;
-  const longURL = request.body.style;
-
-  urlDatabase[shortURL] = longURL;
-  response.redirect(shortURL);
+  const longURL = request.body.longURL;
+  const userID = request.cookies.user;
+  const userURLS = urlsForUser(userID, urlDatabase);
+  if (userID === userURLS[shortURL].userID) {
+    urlDatabase[shortURL].longURL = longURL;
+    response.redirect(shortURL);
+  } else {
+    response.send("not allowed");
+  }
 });
 
 

@@ -28,6 +28,16 @@ const generateRandomString = () => {
   return (Math.random().toString(36) + '00000000000000000').slice(2, 8);
 };
 
+/**********************************/
+/*
+      urlDatabase and users
+      contain placeholders,
+      the placeholders are
+      not functional,
+      just for layout reference
+*/
+/*********************************/
+
 
 
 const urlDatabase = {
@@ -47,7 +57,7 @@ const users = {
 
 /**********************************/
 /*
-                GETS
+                GET
 */
 /*********************************/
 
@@ -159,7 +169,7 @@ app.get('/login', (request, response) => {
 
 /**********************************/
 /*
-               POSTS
+               POST
 */
 /*********************************/
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 
@@ -170,9 +171,9 @@ app.post("/urls", (request, response) => {
 app.post("/login", (request, response) => {
   const {email, password} = request.body;
   const user = getUserByEmail(email);
-  
+  console.log("user:", user);
   if (user) {
-    if (user.password === password){
+    if (bcrypt.compareSync(password, user.hashedPassword)){
       response.cookie('user', user.id);
     } else {
       response.send("403: Email and or password do not match!");
@@ -192,10 +193,11 @@ app.post("/logout", (request, response) => {
 app.post('/register', (request, response) => {
   const { email, password } = request.body;
   const id = generateRandomString();
+  const hashedPassword = bcrypt.hashSync(password, 10);
   if (getUserByEmail(email)) {
     response.send("400: email already exists");;
   } else {
-    users[id] = { id, email, password };
+    users[id] = { id, email, hashedPassword };
     response.cookie('user', id);
     response.redirect('/urls');
   }

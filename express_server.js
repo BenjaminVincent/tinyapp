@@ -150,12 +150,9 @@ app.post("/urls", (request, response) => {
 app.post("/login", (request, response) => {
   const {email, password} = request.body;
   const user = getUserByEmail(email);
-  console.log("USER:", user);
-  console.log('user.password:', user.password);
-  console.log("password GIVEn:", password);
+
   if (user) {
     if (user.password === password){
-      console.log("MATCHED!", user.user);
       response.cookie('user', user.user);
     } else {
       response.send("403: Email and or password do not match!");

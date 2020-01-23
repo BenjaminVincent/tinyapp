@@ -3,6 +3,10 @@ const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const { getUserByEmail, urlsForUser, getRequestUser } = require('./helpers');
+
+
+
 const app = express();
 const PORT = 8080;
 
@@ -23,10 +27,6 @@ const generateRandomString = () => {
 };
 
 
-// const urlDatabase = {
-//   'b2xVn2': 'http://www.lighthouselabs.ca',
-//   '9sm5xk': 'http://www.google.com'
-// };
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -140,10 +140,11 @@ app.get('/login', (request, response) => {
 
 
 app.post('/urls/:shortURL/delete', (request, response) => {
+
   const shortURL = request.params.shortURL;
-  const userID = request.session.user; // CHANGED
-  console.log(userID);
+  const userID = request.session.user;
   const userURLS = urlsForUser(userID, urlDatabase);
+
   if (userID === userURLS[shortURL].userID) {
     delete urlDatabase[shortURL];
   } else {
@@ -155,8 +156,9 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 app.post('/urls/:id', (request, response) => {
   const shortURL = request.params.id;
   const longURL = request.body.longURL;
-  const userID = request.session.user; // CHANGED
+  const userID = request.session.user;
   const userURLS = urlsForUser(userID, urlDatabase);
+  
   if (userID === userURLS[shortURL].userID) {
     urlDatabase[shortURL].longURL = longURL;
     response.redirect(shortURL);
@@ -166,22 +168,22 @@ app.post('/urls/:id', (request, response) => {
 });
 
 
-// post to app
+
 app.post("/urls", (request, response) => {
   const longURL = request.body.longURL;
   const rndStr = generateRandomString();
-  urlDatabase[rndStr] = { longURL, userID: request.session.user }; // CHANGED
+  urlDatabase[rndStr] = { longURL, userID: request.session.user };
   response.redirect(`/urls/${rndStr}`);
 
 });
 
 app.post("/login", (request, response) => {
   const {email, password} = request.body;
-  const user = getUserByEmail(email);
+  const user = getUserByEmail(email, users);
 
   if (user) {
     if (bcrypt.compareSync(password, user.hashedPassword)){
-      request.session.user = user.id; // CHANGED
+      request.session.user = user.id;
     } else {
       response.send("403: Email and or password do not match!");
     }
@@ -193,8 +195,7 @@ app.post("/login", (request, response) => {
 });
 
 app.post("/logout", (request, response) => {
-  // response.clearCookie('user'); 
-  request.session = null; // CHANGED
+  request.session = null; 
   response.redirect('/urls');
 });
 
@@ -202,12 +203,11 @@ app.post('/register', (request, response) => {
   const { email, password } = request.body;
   const id = generateRandomString();
   const hashedPassword = bcrypt.hashSync(password, 10);
-  console.log("ID:", id);
-  if (getUserByEmail(email)) {
+
+  if (getUserByEmail(email, users)) {
     response.send("400: email already exists");;
   } else {
     users[id] = { id, email, hashedPassword };
-    // response.cookie('user', id); // CHANGE HERE!!!!!!!!!!!!!!!!!!!!
     request.session.user = id;
     response.redirect('/urls');
   }
@@ -219,35 +219,8 @@ app.listen(PORT, () => {
 });
 
 
-const getRequestUser = (request) => {
-
-  if (!request) return;
-  const cookies = request.session; // CHANGED
-  if (!cookies) { 
-    return null;
-  }
-  return cookies["user"]; 
-};
-
-// returns true is email is already in users object!
-const getUserByEmail = (email) => {
-  for (const user in users) {
-    if (users[user].email === email) {
-      return users[user];
-    }
-  }
-  return null;
-};
 
 
-const urlsForUser = (userID, urlsObj) => {
-  const userURLS = {};
-  for (let url in urlsObj) {
-    if (urlsObj[url].userID === userID) {
-      userURLS[url] = urlsObj[url];
-    }
-  }
-  return userURLS;
 
-};
+
 

@@ -65,7 +65,11 @@ app.get("/urls/new", (request, response) => {
     user: userObj,
     urls: urlDatabase 
   };
+  if (user) {
   response.render("urls_new", templateVars);
+  } else {
+    response.render("login", templateVars);
+  }
 });
 
 

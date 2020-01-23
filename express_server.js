@@ -65,6 +65,7 @@ app.get("/urls/new", (request, response) => {
     user: userObj,
     urls: urlDatabase 
   };
+
   if (user) {
   response.render("urls_new", templateVars);
   } else {
@@ -113,10 +114,10 @@ app.get('/register', (request, response) => {
 
 app.get('/login', (request, response) => {
   const user = getRequestUser(request);
-  const userObj = users[user];
+  //const userObj = users[user];
 
   let templateVars = {
-    user: userObj
+    user: user
   }
 
   response.render('login', templateVars);
@@ -154,10 +155,14 @@ app.post("/urls", (request, response) => {
 app.post("/login", (request, response) => {
   const {email, password} = request.body;
   const user = getUserByEmail(email);
-
+  console.log("user:", user);
+  console.log("email:", email);
+  console.log("password:", password);
+  
   if (user) {
     if (user.password === password){
-      response.cookie('user', user.user);
+      console.log("user: ", user)
+      response.cookie('user', user.id);
     } else {
       response.send("403: Email and or password do not match!");
     }
@@ -175,12 +180,12 @@ app.post("/logout", (request, response) => {
 
 app.post('/register', (request, response) => {
   const { email, password } = request.body;
-  const user = generateRandomString();
+  const id = generateRandomString();
   if (getUserByEmail(email)) {
     response.send("400: email already exists");;
   } else {
-    users[user] = { user, email, password };
-    response.cookie('user', user);
+    users[id] = { id, email, password };
+    response.cookie('user', id);
     response.redirect('/urls');
   }
 });

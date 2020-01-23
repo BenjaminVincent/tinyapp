@@ -4,10 +4,8 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080;
 
-
-
-
 app.set('view engine', 'ejs');
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
@@ -35,25 +33,37 @@ const users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
+  },
+  "3": {
+    id: "3",
+    email: "a@a.com",
+    password: "123"
   }
 }
 
-// endpoints
-app.get('/', (request, response) => {
-  response.send('Hello!');
-});
+// // endpoints
+// app.get('/', (request, response) => {
+//   response.send('Hello!');
+// });
 
 app.get('/urls', (request, response) => {
+  const user = getRequestUser(request);
+  const userObj = users[user];
+
   let templateVars = { 
-    username: request.cookies["username"],
+    user: userObj,
     urls: urlDatabase 
   };
   response.render('urls_index', templateVars);
 });
 
 app.get("/urls/new", (request, response) => {
+  const user = getRequestUser(request);
+  const userObj = users[user];
+
   let templateVars = { 
-    username: request.cookies["username"], 
+    user: userObj,
+    urls: urlDatabase 
   };
   response.render("urls_new", templateVars);
 });
@@ -62,11 +72,14 @@ app.get("/urls/new", (request, response) => {
 app.get('/urls/:shortURL', (request, response) => {
   const shortURL = request.params.shortURL;
   const longURL = urlDatabase[shortURL];
+  const user = getRequestUser(request);
+  const userObj = users[user];
   
   let templateVars = { 
-    username: request.cookies["username"],
+    user: userObj,
     shortURL: shortURL, 
-    longURL: longURL };
+    longURL: longURL 
+  };
   response.render('urls_show', templateVars);
 });
 
@@ -88,10 +101,22 @@ app.get('/hello', (request, response) => {
 });
 
 app.get('/register', (request, response) => {
-  let templateVars = { username: request.cookies["username"] };
+  let templateVars = { 
+    user: getRequestUser(request)
+  };
   response.render('register', templateVars);
 });
 
+app.get('/login', (request, response) => {
+  const user = getRequestUser(request);
+  const userObj = users[user];
+
+  let templateVars = {
+    user: userObj
+  }
+
+  response.render('login', templateVars);
+});
 
 
 
@@ -123,24 +148,61 @@ app.post("/urls", (request, response) => {
 });
 
 app.post("/login", (request, response) => {
-  const username = request.body.username;
-  response.cookie('username', username);
-  response.redirect('/urls');
+  const {email, password} = request.body;
+  const user = getUserByEmail(email);
+  if (user) {
+    if (user.password === password){
+      response.cookie('user', user.id);
+    } else {
+      response.send("403: Email and or password do not match!");
+    }
+  } else {
+    response.send("403: account doesn't exist!");
+  }
+  response.redirect('/urls')
   
 });
 
 app.post("/logout", (request, response) => {
-  response.clearCookie('username');
+  response.clearCookie('user');
   response.redirect('/urls');
 });
 
 app.post('/register', (request, response) => {
-  const email = request.body.email;
-  const password = request.body.password;
+  const { email, password } = request.body;
+  const user = generateRandomString();
+  if (getUserByEmail(email)) {
+    response.send("400: email already exists");;
+  } else {
+    users[user] = { user, email, password };
+    response.cookie('user', user);
+    response.redirect('/urls');
+  }
 });
 
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+const getRequestUser = (request) => {
+
+  if (!request) return;
+  const cookies = request.cookies;
+  if (!cookies) {
+    return null;
+  }
+  return cookies["user"];
+};
+
+// returns true is email is already in users object!
+const getUserByEmail = (email) => {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return null;
+};
 

@@ -12,25 +12,22 @@
     </div>
     
 
-      <% if (username) { %>
+      <% if (user) { %>
         <form method="POST" action="/logout">
-          <a>Logged in As: <%= username %> </a> 
+          <a>Logged in As: <%= user.email %> </a> 
             <button type="submit" class="btn btn-outline-dark">Logout</button>
           </p>
         </form>
       <% } else {%>
-        <form method="POST" action="/login">
         <p class="card-text">
-          <input 
-          type="text"
-          class="border-0 rounded" 
-          placeholder="Username" 
-          id="username" 
-          name="username"
-          required/> 
-          <button type="submit" class="btn btn-outline-dark">Login</button>
+          <a href="/login">
+            <button name="user" type="submit" class="btn btn-outline-light">Login</button>
+          </a>
+
+          <a href="/register">
+            <button type="" name="user" class="btn btn-outline-light">Register</button>
+          </a>
         </p>
-      </form>
         
         <% } %>
     </form>

@@ -13,16 +13,15 @@
   <body>
 
     <%- include ('partials/_header') %>
-    <h3>Hello world</h3>
     <main style="margin: 1em;">
       <h3>Create Account</h3>
       <form action="/register" method="POST">
         <div class="form-group mb-2">
           <label for="longURL">Email address</label>
-          <input class="form-control" type="email" name="email" placeholder="Enter email" style="width: 300px">
+          <input class="form-control" type="email" name="email" placeholder="Enter email" style="width: 300px" required>
           <label for="longURL" style="width: 300px; margin-top: 1em">Password</label>
-          <input class="form-control" type="password" name="password" placeholder="Password" style="width: 300px; margin-bottom: 1em">
-          <button type="submit" class="btn btn-primary">register</button>
+          <input class="form-control" type="password" name="password" placeholder="Password" style="width: 300px; margin-bottom: 1em" required>
+          <button type="submit" class="btn btn-primary">Register</button>
         </div>
       </form>
     </main>

@@ -11,17 +11,21 @@ app.use(cookieParser());
 
 
 
-// fix this to allow for capital letters
 const generateRandomString = () => {
   return (Math.random().toString(36)+'00000000000000000').slice(2, 8);
 };
 
 
-const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xk': 'http://www.google.com'
-};
+// const urlDatabase = {
+//   'b2xVn2': 'http://www.lighthouselabs.ca',
+//   '9sm5xk': 'http://www.google.com'
+// };
 
+const urlDatabase = {
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
+  aaaaaa: { longURL: "http://www.youtube.com", userID: "3"}
+};
 
 const users = { 
   "userRandomID": {
@@ -41,20 +45,21 @@ const users = {
   }
 }
 
-// // endpoints
-// app.get('/', (request, response) => {
-//   response.send('Hello!');
-// });
 
 app.get('/urls', (request, response) => {
-  const user = getRequestUser(request);
-  const userObj = users[user];
+  const id = getRequestUser(request);
+  const user = users[id];
+  const userURLs = urlsForUser(id, urlDatabase);
 
-  let templateVars = { 
-    user: userObj,
-    urls: urlDatabase 
+  let templateVars = {  
+    user,
+    urls: userURLs 
   };
-  response.render('urls_index', templateVars);
+  if (user) {
+    response.render('urls_index', templateVars);
+  } else {
+    response.render('login', templateVars);
+  }
 });
 
 app.get("/urls/new", (request, response) => {
@@ -76,9 +81,9 @@ app.get("/urls/new", (request, response) => {
 
 app.get('/urls/:shortURL', (request, response) => {
   const shortURL = request.params.shortURL;
-  const longURL = urlDatabase[shortURL];
-  const user = getRequestUser(request);
-  const userObj = users[user];
+  const longURL = urlDatabase[shortURL].longURL;
+  const id = getRequestUser(request);
+  const userObj = users[id];
   
   let templateVars = { 
     user: userObj,
@@ -90,7 +95,7 @@ app.get('/urls/:shortURL', (request, response) => {
 
 app.get("/u/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   response.redirect(longURL);
 });
 
@@ -114,7 +119,6 @@ app.get('/register', (request, response) => {
 
 app.get('/login', (request, response) => {
   const user = getRequestUser(request);
-  //const userObj = users[user];
 
   let templateVars = {
     user: user
@@ -130,7 +134,18 @@ app.get('/login', (request, response) => {
 
 app.post('/urls/:shortURL/delete', (request, response) => {
   const shortURL = request.params.shortURL;
-  delete urlDatabase[shortURL];
+  console.log("ShortURL:", shortURL);
+  const userID = request.cookies.user;
+  const userURLS = urlsForUser(userID, urlDatabase);
+  // console.log("request.cookies.user:", request.cookies.user);
+  console.log(userURLS);
+  console.log(userID);
+  console.log("userShort:", userURLS[shortURL]);
+  if (userID === userURLS[shortURL].userID) {
+    delete urlDatabase[shortURL];
+  } else {
+    response.send("not allowed");
+  }
   response.redirect(`/urls`);
 });
 
@@ -146,8 +161,8 @@ app.post('/urls/:id', (request, response) => {
 // post to app
 app.post("/urls", (request, response) => {
   const longURL = request.body.longURL;
-  const rndStr = generateRandomString()
-  urlDatabase[rndStr] = longURL;
+  const rndStr = generateRandomString();
+  urlDatabase[rndStr] = { longURL, userID: request.cookies.user };
   response.redirect(`/urls/${rndStr}`);
 
 });
@@ -155,13 +170,9 @@ app.post("/urls", (request, response) => {
 app.post("/login", (request, response) => {
   const {email, password} = request.body;
   const user = getUserByEmail(email);
-  console.log("user:", user);
-  console.log("email:", email);
-  console.log("password:", password);
   
   if (user) {
     if (user.password === password){
-      console.log("user: ", user)
       response.cookie('user', user.id);
     } else {
       response.send("403: Email and or password do not match!");
@@ -214,5 +225,18 @@ const getUserByEmail = (email) => {
     }
   }
   return null;
+};
+
+
+const urlsForUser = (userID, urlsObj) => {
+  // console.log("in urlsForUser: ", urlDatabase.aaaaaa.userID);
+  const userURLS = {};
+  for (let url in urlsObj) {
+    if (urlsObj[url].userID === userID) {
+      userURLS[url] = urlsObj[url];
+    }
+  }
+  return userURLS;
+
 };
 

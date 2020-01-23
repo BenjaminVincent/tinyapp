@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
@@ -9,6 +10,11 @@ app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  secret: 'string',
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 
 
@@ -135,7 +141,8 @@ app.get('/login', (request, response) => {
 
 app.post('/urls/:shortURL/delete', (request, response) => {
   const shortURL = request.params.shortURL;
-  const userID = request.cookies.user;
+  const userID = request.session.user; // CHANGED
+  console.log(userID);
   const userURLS = urlsForUser(userID, urlDatabase);
   if (userID === userURLS[shortURL].userID) {
     delete urlDatabase[shortURL];
@@ -148,7 +155,7 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 app.post('/urls/:id', (request, response) => {
   const shortURL = request.params.id;
   const longURL = request.body.longURL;
-  const userID = request.cookies.user;
+  const userID = request.session.user; // CHANGED
   const userURLS = urlsForUser(userID, urlDatabase);
   if (userID === userURLS[shortURL].userID) {
     urlDatabase[shortURL].longURL = longURL;
@@ -163,7 +170,7 @@ app.post('/urls/:id', (request, response) => {
 app.post("/urls", (request, response) => {
   const longURL = request.body.longURL;
   const rndStr = generateRandomString();
-  urlDatabase[rndStr] = { longURL, userID: request.cookies.user };
+  urlDatabase[rndStr] = { longURL, userID: request.session.user }; // CHANGED
   response.redirect(`/urls/${rndStr}`);
 
 });
@@ -171,10 +178,10 @@ app.post("/urls", (request, response) => {
 app.post("/login", (request, response) => {
   const {email, password} = request.body;
   const user = getUserByEmail(email);
-  console.log("user:", user);
+
   if (user) {
     if (bcrypt.compareSync(password, user.hashedPassword)){
-      response.cookie('user', user.id);
+      request.session.user = user.id; // CHANGED
     } else {
       response.send("403: Email and or password do not match!");
     }
@@ -186,7 +193,8 @@ app.post("/login", (request, response) => {
 });
 
 app.post("/logout", (request, response) => {
-  response.clearCookie('user');
+  // response.clearCookie('user'); 
+  request.session = null; // CHANGED
   response.redirect('/urls');
 });
 
@@ -194,11 +202,13 @@ app.post('/register', (request, response) => {
   const { email, password } = request.body;
   const id = generateRandomString();
   const hashedPassword = bcrypt.hashSync(password, 10);
+  console.log("ID:", id);
   if (getUserByEmail(email)) {
     response.send("400: email already exists");;
   } else {
     users[id] = { id, email, hashedPassword };
-    response.cookie('user', id);
+    // response.cookie('user', id); // CHANGE HERE!!!!!!!!!!!!!!!!!!!!
+    request.session.user = id;
     response.redirect('/urls');
   }
 });
@@ -212,11 +222,11 @@ app.listen(PORT, () => {
 const getRequestUser = (request) => {
 
   if (!request) return;
-  const cookies = request.cookies;
-  if (!cookies) {
+  const cookies = request.session; // CHANGED
+  if (!cookies) { 
     return null;
   }
-  return cookies["user"];
+  return cookies["user"]; 
 };
 
 // returns true is email is already in users object!
@@ -231,7 +241,6 @@ const getUserByEmail = (email) => {
 
 
 const urlsForUser = (userID, urlsObj) => {
-  // console.log("in urlsForUser: ", urlDatabase.aaaaaa.userID);
   const userURLS = {};
   for (let url in urlsObj) {
     if (urlsObj[url].userID === userID) {

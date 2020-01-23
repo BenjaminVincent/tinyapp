@@ -1,15 +1,24 @@
+/**********************************/
+/*
+      express_server HELPERS!
+*/
+/*********************************/
 
 
 
-// returns true is email is already in users object!
 const getUserByEmail = (email, database) => {
+
   for (const user in database) {
     if (database[user].email === email) {
       return database[user];
     }
   }
+
   return null;
+
 };
+
+
 
 const urlsForUser = (userID, urlsObj) => {
   const userURLS = {};
@@ -23,14 +32,15 @@ const urlsForUser = (userID, urlsObj) => {
 };
 
 
+
 const getRequestUser = (request) => {
 
   if (!request) return;
   const cookies = request.session;
-  if (!cookies) { 
+  if (!cookies) {
     return null;
   }
-  return cookies["user"]; 
+  return cookies["user"];
 };
 
 
@@ -39,5 +49,4 @@ module.exports = {
   getUserByEmail,
   urlsForUser,
   getRequestUser
-
-}
+};

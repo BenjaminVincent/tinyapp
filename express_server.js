@@ -58,7 +58,7 @@ const users = {
 
 /**********************************/
 /*
-                GET
+                "GET"
 */
 /**********************************/
 
@@ -170,7 +170,7 @@ app.get('/login', (request, response) => {
 
 /**********************************/
 /*
-               POST
+              "POST"
 */
 /**********************************/
 
@@ -255,7 +255,7 @@ app.post("/logout", (request, response) => {
 
 
 
-app.post('/register', (request, response) => {
+app.put('/register', (request, response) => {
 
   const { email, password } = request.body;
   const id = generateRandomString();

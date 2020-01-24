@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
 const { getUserByEmail, urlsForUser, getRequestUser } = require('./helpers');
 
 
@@ -14,11 +15,11 @@ const PORT = 8080;
 app.set('view engine', 'ejs');
 
 
-
+app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
-  secret: 'string',
+  secret: 'secret',
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
@@ -36,7 +37,7 @@ const generateRandomString = () => {
       not functional,
       just for layout reference
 */
-/*********************************/
+/**********************************/
 
 
 
@@ -59,7 +60,7 @@ const users = {
 /*
                 GET
 */
-/*********************************/
+/**********************************/
 
 
 app.get('/urls', (request, response) => {
@@ -171,11 +172,11 @@ app.get('/login', (request, response) => {
 /*
                POST
 */
-/*********************************/
+/**********************************/
 
 
 
-app.post('/urls/:shortURL/delete', (request, response) => {
+app.delete('/urls/:shortURL', (request, response) => {
 
   const shortURL = request.params.shortURL;
   const userID = request.session.user;
